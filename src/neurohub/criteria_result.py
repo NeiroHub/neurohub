@@ -17,6 +17,81 @@ class CriteriaResult:
                 "Either file_uuid or criteria_result_qa_uuid must be provided"
             )
 
+    def _validate_response(self, resp):
+        """Validate NeuroHub API response structure"""
+        if isinstance(resp, str):
+            raise ValueError(f"NeuroHub returned string instead of object: {resp}")
+        if not isinstance(resp, dict):
+            raise ValueError(f"NeuroHub returned unexpected type: {type(resp)}, value: {resp}")
+        if "results" not in resp:
+            raise ValueError(f"NeuroHub response missing 'results' field. Response: {resp}")
+
+    def get_qa_raw(
+        self,
+        file_uuid: Optional[UUID | str] = None,
+        criteria_result_qa_uuid: Optional[UUID | str] = None,
+        client_uuid: Optional[UUID | str] = None,
+    ) -> dict:
+        """Get raw QA response with file_info and results (for database storage)"""
+        client_uuid = self._base._handle_client_uuid(client_uuid)
+        self._validate_params(file_uuid, criteria_result_qa_uuid)
+        params = {
+            "client_uuid": client_uuid,
+            "file_uuid": str(file_uuid) if file_uuid else None,
+            "criteria_result_qa_uuid": str(criteria_result_qa_uuid)
+            if criteria_result_qa_uuid
+            else None,
+        }
+        resp = self._base.make_request(
+            "criteria-result-qa", method="GET", params=params
+        )
+        self._validate_response(resp)
+        return resp
+
+    def get_entity_raw(
+        self,
+        file_uuid: Optional[UUID | str] = None,
+        criteria_result_entity_uuid: Optional[UUID | str] = None,
+        client_uuid: Optional[UUID | str] = None,
+    ) -> dict:
+        """Get raw Entity response with file_info and results (for database storage)"""
+        client_uuid = self._base._handle_client_uuid(client_uuid)
+        self._validate_params(criteria_result_entity_uuid, file_uuid)
+        params = {
+            "client_uuid": client_uuid,
+            "file_uuid": str(file_uuid) if file_uuid else None,
+            "criteria_result_entity_uuid": str(criteria_result_entity_uuid)
+            if criteria_result_entity_uuid
+            else None,
+        }
+        resp = self._base.make_request(
+            "criteria-result-entity", method="GET", params=params
+        )
+        self._validate_response(resp)
+        return resp
+
+    def get_analysis_raw(
+        self,
+        file_uuid: Optional[UUID | str] = None,
+        criteria_result_analysis_uuid: Optional[UUID | str] = None,
+        client_uuid: Optional[UUID | str] = None,
+    ) -> dict:
+        """Get raw Analysis response with file_info and results (for database storage)"""
+        client_uuid = self._base._handle_client_uuid(client_uuid)
+        self._validate_params(file_uuid, criteria_result_analysis_uuid)
+        params = {
+            "client_uuid": client_uuid,
+            "file_uuid": str(file_uuid) if file_uuid else None,
+            "criteria_result_analysis_uuid": str(criteria_result_analysis_uuid)
+            if criteria_result_analysis_uuid
+            else None,
+        }
+        resp = self._base.make_request(
+            "criteria-result-analysis", method="GET", params=params
+        )
+        self._validate_response(resp)
+        return resp
+
     def get_qa(
         self,
         file_uuid: Optional[UUID | str] = None,
