@@ -1,6 +1,6 @@
 [project]
 name = "neurohub"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
   { name="Kamatayon", email="wowegable@gmail.com" },
 ]
@@ -17,8 +17,8 @@ license-files = ["LICENSE"]
 dependencies=["httpx"]
 
 [project.urls]
-Homepage = "https://github.com/Kamatayon/neurohub"
-Issues = "https://github.com/Kamatayon/neurohub"
+Homepage = "https://github.com/NeiroHub/neurohub"
+Issues = "https://github.com/NeiroHub/neurohub"
 
 
 [build-system]
