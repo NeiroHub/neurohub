@@ -43,7 +43,10 @@ class CriteriaResult:
         if "results" not in resp:
             raise ValueError(f"NeuroHub response missing 'results' field. Response: {resp}")
 
-        return [self._parse_qa_result(item) for item in resp["results"]]
+        # Extract file_uuid from file_info (it's not in each result item)
+        file_uuid_from_response = resp.get("file_info", {}).get("file_uuid")
+
+        return [self._parse_qa_result(item, file_uuid_from_response) for item in resp["results"]]
 
     def get_entity(
         self,
@@ -71,7 +74,10 @@ class CriteriaResult:
         if "results" not in resp:
             raise ValueError(f"NeuroHub response missing 'results' field. Response: {resp}")
 
-        return [self._parse_entity_result(item) for item in resp["results"]]
+        # Extract file_uuid from file_info (it's not in each result item)
+        file_uuid_from_response = resp.get("file_info", {}).get("file_uuid")
+
+        return [self._parse_entity_result(item, file_uuid_from_response) for item in resp["results"]]
 
     def get_analysis(
         self,
@@ -99,12 +105,15 @@ class CriteriaResult:
         if "results" not in resp:
             raise ValueError(f"NeuroHub response missing 'results' field. Response: {resp}")
 
-        return [self._parse_analysis_result(item) for item in resp["results"]]
+        # Extract file_uuid from file_info (it's not in each result item)
+        file_uuid_from_response = resp.get("file_info", {}).get("file_uuid")
 
-    def _parse_qa_result(self, data: dict) -> CriteriaResultQA:
+        return [self._parse_analysis_result(item, file_uuid_from_response) for item in resp["results"]]
+
+    def _parse_qa_result(self, data: dict, file_uuid: Optional[str] = None) -> CriteriaResultQA:
         return CriteriaResultQA(
             criteria_result_qa_uuid=data["criteria_result_qa_uuid"],
-            file_uuid=data["file_uuid"],
+            file_uuid=file_uuid or data.get("file_uuid"),  # Use passed file_uuid or fallback to data
             criteria_uuid=data["criteria_uuid"],
             situation_id=data["situation_id"],
             criteria_score=data["criteria_score"],
@@ -114,10 +123,10 @@ class CriteriaResult:
             criteria=data["criteria"],
         )
 
-    def _parse_entity_result(self, data: dict) -> CriteriaResultEntity:
+    def _parse_entity_result(self, data: dict, file_uuid: Optional[str] = None) -> CriteriaResultEntity:
         return CriteriaResultEntity(
             criteria_result_entity_uuid=data["criteria_result_entity_uuid"],
-            file_uuid=data["file_uuid"],
+            file_uuid=file_uuid or data.get("file_uuid"),  # Use passed file_uuid or fallback to data
             criteria_uuid=data["criteria_uuid"],
             criteria_value=data["criteria_value"],
             entity_time=data["entity_time"],
@@ -125,5 +134,8 @@ class CriteriaResult:
             criteria_clasification_list=data["criteria_clasification_list"],
         )
 
-    def _parse_analysis_result(self, data: dict) -> CriteriaResultAnalysis:
+    def _parse_analysis_result(self, data: dict, file_uuid: Optional[str] = None) -> CriteriaResultAnalysis:
+        # Add file_uuid to data if not present
+        if file_uuid and "file_uuid" not in data:
+            data["file_uuid"] = file_uuid
         return data
