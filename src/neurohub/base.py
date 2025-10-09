@@ -22,7 +22,9 @@ class BaseClient:
             "Authorization": f"Bearer {secret_key}",
             "Content-Type": "application/json",
         }
-        self.client = httpx.Client(headers=self.headers, base_url=host)
+        # Set timeout to 60 seconds (connect=10s, read=60s, write=10s, pool=10s)
+        timeout = httpx.Timeout(60.0, connect=10.0)
+        self.client = httpx.Client(headers=self.headers, base_url=host, timeout=timeout)
         self.client_uuid = client_uuid
 
         # Initialize S3 client if credentials provided
